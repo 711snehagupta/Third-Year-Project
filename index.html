@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tandoor Lane – Order Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep:#0E2F2B; --deep2:#16443E; --saffron:#F2A900; --chili:#C93A1F;
+    --paper:#F3F6F1; --ink:#13231F; --muted:#5D6F69; --line:#DCE4DE;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font-family:'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background:var(--paper);min-height:100vh;display:grid;grid-template-columns:minmax(280px,38%) 1fr}
+  /* left brand panel */
+  aside{background:var(--deep);color:#fff;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;position:sticky;top:0;height:100vh}
+  aside h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(48px,6vw,84px);line-height:.95;color:var(--saffron)}
+  aside p{margin-top:18px;color:#B9D1CB;max-width:30ch;line-height:1.5}
+  .steps{list-style:none;padding:0;display:grid;gap:14px}
+  .steps li{display:flex;align-items:center;gap:14px;color:#6F9B92;font-weight:600;transition:.3s}
+  .steps b{width:34px;height:34px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-size:14px}
+  .steps li.on{color:#fff}
+  .steps li.on b{background:var(--saffron);border-color:var(--saffron);color:var(--deep)}
+  .steps li.done{color:var(--saffron)}
+  /* main */
+  main{padding:48px clamp(20px,5vw,64px);max-width:860px;width:100%}
+  section{display:none}
+  section.show{display:block}
+  h2{font-size:30px;font-weight:800;margin-bottom:6px}
+  .sub{color:var(--muted);margin-bottom:26px}
+  label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+  input{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  input:focus,button:focus-visible{outline:3px solid var(--saffron);outline-offset:1px}
+  .btn{margin-top:24px;background:var(--chili);color:#fff;border:0;padding:15px 28px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{background:#B8C4BF;cursor:not-allowed}
+  .err{color:var(--chili);font-weight:600;margin-top:14px;min-height:22px}
+  .hint{margin-top:22px;font-size:13px;color:var(--muted)}
+  /* menu */
+  .menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .dish{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px}
+  .dish .em{font-size:40px}
+  .dish h3{font-size:18px}
+  .price{color:var(--muted);font-weight:600}
+  .qty{margin-top:auto;display:flex;align-items:center;gap:12px;padding-top:10px}
+  .qty button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font-size:18px;cursor:pointer}
+  .qty button:hover{background:var(--saffron);border-color:var(--saffron)}
+  .qty span{min-width:20px;text-align:center;font-weight:700}
+  .bar{position:sticky;bottom:16px;margin-top:24px;background:var(--deep);color:#fff;border-radius:14px;padding:14px 14px 14px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 10px 30px rgba(14,47,43,.3)}
+  .bar strong{font-size:22px;color:var(--saffron)}
+  .bar .btn{margin:0}
+  /* payment */
+  .bill{background:#fff;border:1.5px dashed #9FB3AC;border-radius:14px;padding:24px;margin-bottom:8px}
+  .bill div{display:flex;justify-content:space-between;padding:6px 0}
+  .bill .t{border-top:1.5px solid var(--line);margin-top:8px;padding-top:14px;font-size:22px;font-weight:800}
+  .methods{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .methods label{margin:0;cursor:pointer}
+  .methods input{position:absolute;opacity:0;width:0}
+  .methods span{display:block;padding:12px 22px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-weight:600}
+  .methods input:checked+span{background:var(--deep);color:#fff;border-color:var(--deep)}
+  .methods input:focus-visible+span{outline:3px solid var(--saffron)}
+  /* success */
+  .ok{text-align:center;padding-top:40px}
+  .ok .big{font-size:72px}
+  .ok .btn{background:var(--deep)}
+  .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:14px;color:var(--muted)}
+  .topline a{color:var(--chili);cursor:pointer;font-weight:600}
+  @media(max-width:800px){
+    body{grid-template-columns:1fr}
+    aside{position:static;height:auto;padding:28px 24px;gap:24px}
+    .steps{grid-auto-flow:column;gap:18px}
+    .steps li span{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<aside>
+  <div>
+    <h1>Tandoor<br>Lane</h1>
+    <p>Hot from the clay oven to your table. Log in, pick your dishes, pay once.</p>
+  </div>
+  <ol class="steps" id="steps">
+    <li class="on"><b>1</b><span>Login</span></li>
+    <li><b>2</b><span>Order</span></li>
+    <li><b>3</b><span>Pay</span></li>
+  </ol>
+</aside>
+
+<main>
+  <!-- 1. LOGIN (Login Service :8081) -->
+  <section id="s-login" class="show">
+    <h2>Welcome back</h2>
+    <p class="sub">Sign in to start your order.</p>
+    <label for="u">Username</label>
+    <input id="u" value="" autocomplete="username">
+    <label for="p">Password</label>
+    <input id="p" type="password" value="" autocomplete="current-password">
+    <button class="btn" id="loginBtn">Sign in</button>
+    <button class="btn" id="signupBtn" style="background:var(--deep);margin-left:10px">Create account</button>
+    <div class="err" id="loginErr"></div>
+    <p class="hint">New here? Type any username and password, then click Create account.</p>
+  </section>
+
+  <!-- 2. ORDER (Order Service :8082) -->
+  <section id="s-order">
+    <div class="topline"><span id="hello"></span><a id="logout">Sign out</a></div>
+    <h2>Today’s menu</h2>
+    <p class="sub">Choose what you’d like to eat.</p>
+    <div class="menu" id="menu"></div>
+    <div class="bar">
+      <span>Total <strong id="total">₹0</strong></span>
+      <button class="btn" id="orderBtn" disabled>Place order</button>
+    </div>
+    <div class="err" id="orderErr"></div>
+  </section>
+
+  <!-- 3. PAYMENT (Payment Service :8083) -->
+  <section id="s-pay">
+    <h2>Pay for your order</h2>
+    <p class="sub" id="orderNo"></p>
+    <div class="bill" id="bill"></div>
+    <label>Payment method</label>
+    <div class="methods">
+      <label><input type="radio" name="m" value="UPI" checked><span>UPI</span></label>
+      <label><input type="radio" name="m" value="Card"><span>Card</span></label>
+      <label><input type="radio" name="m" value="Cash"><span>Cash on table</span></label>
+    </div>
+    <button class="btn" id="payBtn">Pay now</button>
+    <div class="err" id="payErr"></div>
+  </section>
+
+  <!-- DONE -->
+  <section id="s-done" class="ok">
+    <div class="big">🎉</div>
+    <h2>Payment received</h2>
+    <p class="sub" id="receipt"></p>
+    <button class="btn" id="again">Order something else</button>
+  </section>
+</main>
+
+<script>
+const LOGIN = "http://localhost:8081", ORDER = "http://localhost:8082", PAY = "http://localhost:8083";
+const $ = id => document.getElementById(id);
+let token = null, user = null, menu = [], cart = {}, order = null;
+
+async function api(url, body) {
+  const res = await fetch(url, body ? { method: "POST", body: JSON.stringify(body) } : {});
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+function show(id, step) {
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("show", s.id === id));
+  document.querySelectorAll("#steps li").forEach((li, i) => {
+    li.className = i < step ? "done" : i === step ? "on" : "";
+  });
+}
+
+/* 1. Login */
+$("loginBtn").onclick = async () => {
+  $("loginErr").textContent = "";
+  try {
+    const r = await api(LOGIN + "/login", { username: $("u").value.trim(), password: $("p").value });
+    token = r.token; user = r.username;
+    $("hello").textContent = "Signed in as " + user;
+    menu = await api(ORDER + "/menu");
+    renderMenu(); show("s-order", 1);
+  } catch (e) {
+    $("loginErr").textContent = e.message === "Failed to fetch"
+      ? "Can't reach the services. Start them with ./run.sh first." : e.message;
+  }
+};
+$("signupBtn").onclick = async () => {
+  $("loginErr").textContent = "";
+  try {
+    await api(LOGIN + "/register", { username: $("u").value.trim(), password: $("p").value });
+    $("loginBtn").click();   // log in automatically after creating the account
+  } catch (e) { $("loginErr").textContent = e.message; }
+};
+$("logout").onclick = () => { token = null; cart = {}; show("s-login", 0); };
+
+/* 2. Order */
+function renderMenu() {
+  $("menu").innerHTML = menu.map(d => `
+    <div class="dish">
+      <div class="em">${d.emoji}</div><h3>${d.name}</h3><div class="price">₹${d.price}</div>
+      <div class="qty">
+        <button aria-label="Remove one ${d.name}" onclick="change(${d.id},-1)">−</button>
+        <span id="q${d.id}">0</span>
+        <button aria-label="Add one ${d.name}" onclick="change(${d.id},1)">+</button>
+      </div>
+    </div>`).join("");
+  updateTotal();
+}
+function change(id, delta) {
+  cart[id] = Math.max(0, (cart[id] || 0) + delta);
+  $("q" + id).textContent = cart[id];
+  updateTotal();
+}
+function updateTotal() {
+  const t = menu.reduce((s, d) => s + d.price * (cart[d.id] || 0), 0);
+  $("total").textContent = "₹" + t;
+  $("orderBtn").disabled = t === 0;
+}
+$("orderBtn").onclick = async () => {
+  $("orderErr").textContent = "";
+  const items = menu.filter(d => cart[d.id]).map(d => ({ id: d.id, qty: cart[d.id] }));
+  try {
+    order = await api(ORDER + "/order", { token, items });
+    $("orderNo").textContent = "Order #" + order.orderId;
+    $("bill").innerHTML = menu.filter(d => cart[d.id]).map(d =>
+      `<div><span>${d.name} × ${cart[d.id]}</span><span>₹${d.price * cart[d.id]}</span></div>`).join("")
+      + `<div class="t"><span>Total</span><span>₹${order.total}</span></div>`;
+    show("s-pay", 2);
+  } catch (e) { $("orderErr").textContent = e.message; }
+};
+
+/* 3. Pay */
+$("payBtn").onclick = async () => {
+  $("payErr").textContent = "";
+  const method = document.querySelector("input[name=m]:checked").value;
+  try {
+    const r = await api(PAY + "/pay", { orderId: order.orderId, method });
+    $("receipt").textContent = `₹${r.amount} paid by ${r.method} · Payment #${r.paymentId} · Order #${r.orderId}`;
+    show("s-done", 3);
+  } catch (e) { $("payErr").textContent = e.message; }
+};
+$("again").onclick = () => { cart = {}; renderMenu(); show("s-order", 1); };
+</script>
+</body>
+</html>
